@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AtmHomePage extends JFrame {
     private JButton depositButton;
@@ -19,7 +20,7 @@ public class AtmHomePage extends JFrame {
     JLabel nameLabel;
 
     private final SqlConnection sqlConnection = new SqlConnection();
-    private static String loggedInCardNumber;
+    private static String loggedInCardNumber; // Store the logged-in card number
 
 
     public AtmHomePage(String loggedInCardNumber) {
@@ -33,16 +34,16 @@ public class AtmHomePage extends JFrame {
         setLocationRelativeTo(null);
 
         namePanel = new JPanel(new GridLayout(0,1));
-
+        // Set the background color to light purple
         nameLabel = new JLabel("       Welcome " + name);
 
         Color lightBlack = new Color(0, 0, 0);
-        Color lightPurple = new Color(135, 206, 235);
+        Color lightPurple = new Color(135, 206, 235);  // You can adjust these RGB values
         namePanel.setBackground(lightPurple);
         namePanel.setPreferredSize(new Dimension(600, 100));
 
         nameLabel = new JLabel("       Welcome " + name);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Adjust the font family, style, and size as needed
         nameLabel.setForeground(lightBlack);
 
 
@@ -56,7 +57,7 @@ public class AtmHomePage extends JFrame {
         checkBalanceButton = new JButton("Check Balance");
         accountInfoButton = new JButton("Account Information");
 
-
+        // Add buttons to the mainPanel
         depositButton.setBorderPainted(false);
         withdrawButton.setBorderPainted(false);
         transferButton.setBorderPainted(false);
@@ -65,11 +66,12 @@ public class AtmHomePage extends JFrame {
         accountInfoButton.setBorderPainted(false);
 
 
-        Color mainPanelColor = new Color(230, 230, 250);
+        // Set the background color for the mainPanel
+        Color mainPanelColor = new Color(230, 230, 250);  // Light lavender color
         mainPanel.setBackground(mainPanelColor);
 
-
-        Color buttonColor = new Color(135, 206, 235);
+        // Set button colors
+        Color buttonColor = new Color(135, 206, 235);  // Sky blue color
         depositButton.setBackground(buttonColor);
         withdrawButton.setBackground(buttonColor);
         transferButton.setBackground(buttonColor);
@@ -77,8 +79,8 @@ public class AtmHomePage extends JFrame {
         checkBalanceButton.setBackground(buttonColor);
         accountInfoButton.setBackground(buttonColor);
 
-
-        Color buttonText = new Color(0, 102, 204);
+        // Set button text color
+        Color buttonText = new Color(0, 102, 204);  // Dark blue color
         depositButton.setForeground(buttonText);
         withdrawButton.setForeground(buttonText);
         transferButton.setForeground(buttonText);
@@ -86,8 +88,8 @@ public class AtmHomePage extends JFrame {
         checkBalanceButton.setForeground(buttonText);
         accountInfoButton.setForeground(buttonText);
 
-
-        Color nameLabelColor = new Color(0, 0, 0);
+        // Set font color for nameLabel
+        Color nameLabelColor = new Color(0, 0, 0);  // Dark violet color
         nameLabel.setForeground(nameLabelColor);
 
         depositButton.addActionListener(new ActionListener() {
@@ -200,7 +202,7 @@ public class AtmHomePage extends JFrame {
                             String cardNumber = resultSet.getString("card_number");
                             double balance = resultSet.getDouble("amount");
                             String gender = resultSet.getString("gender");
-
+                            // Retrieve other information as needed
 
                             String accountInfoMessage = "Full Name: " + fullName +" " + lastName + "\n" +
 
@@ -212,7 +214,7 @@ public class AtmHomePage extends JFrame {
                                     "Gender: "+ gender + "\n" +
                                     "Net-Worth: $" + balance;
 
-
+                            // Append other information to the message
 
                             JOptionPane.showMessageDialog(null, accountInfoMessage, "Account Information", JOptionPane.INFORMATION_MESSAGE);
                         } else {
@@ -239,18 +241,18 @@ public class AtmHomePage extends JFrame {
         mainPanel.add(checkBalanceButton);
         mainPanel.add(accountInfoButton);
 
-
+        // Create the FinalPanel using BorderLayout
         JPanel finalPanel = new JPanel(new BorderLayout());
-
+        // Add empty space around the namePanel
         namePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        finalPanel.add(namePanel, BorderLayout.NORTH);
+        finalPanel.add(namePanel, BorderLayout.NORTH); // Place namePanel at the top
 
-
+        // Add empty space around the mainPanel
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        finalPanel.add(mainPanel, BorderLayout.CENTER);
+        finalPanel.add(mainPanel, BorderLayout.CENTER); // Place mainPanel in the center
 
 
-
+        // Set the content pane of the JFrame to the finalPanel
         setContentPane(finalPanel);
     }
 
@@ -261,7 +263,7 @@ public class AtmHomePage extends JFrame {
         String secondName = null;
 
         try {
-            Connection conn = sqlConnection.getConnection();
+            Connection conn = sqlConnection.getConnection(); // Get the database connection
 
             // Prepare and execute SELECT query using PreparedStatement
             String query = "SELECT firstname,lastname FROM signup WHERE card_number = ?";
@@ -308,10 +310,10 @@ public class AtmHomePage extends JFrame {
                                 return 1; // Successful withdrawal
                             }
                         } else {
-                            return -1;
+                            return -1; // Insufficient balance
                         }
                     } else {
-                        return -2;
+                        return -2; // Card number not found
                     }
                 }
             }
@@ -323,7 +325,7 @@ public class AtmHomePage extends JFrame {
 
     private int performDeposit(String cardNumber, double depositAmount) {
         try {
-            Connection conn = sqlConnection.getConnection();
+            Connection conn = sqlConnection.getConnection(); // Get the database connection
 
             // Check if the card number exists
             String checkQuery = "SELECT amount FROM signup WHERE card_number = ?";
@@ -341,16 +343,16 @@ public class AtmHomePage extends JFrame {
                             updateStatement.setDouble(1, newBalance);
                             updateStatement.setString(2, cardNumber);
                             updateStatement.executeUpdate();
-                            return 1;
+                            return 1; // Successful deposit
                         }
                     } else {
-                        return -1;
+                        return -1; // Card number not found
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return -2;
+            return -2; // An error occurred
         }
     }
 
@@ -415,40 +417,131 @@ public class AtmHomePage extends JFrame {
 
     private int performTransfer(String senderCardNumber, String receiverAccountNumber, double transferAmount) {
         try {
-            Connection conn = sqlConnection.getConnection();
+            Connection conn = sqlConnection.getConnection(); // Get the database connection
 
             // Check if sender's card number exists and has sufficient balance
             String senderCheckQuery = "SELECT amount FROM signup WHERE card_number = ?";
             try (PreparedStatement senderCheckStatement = conn.prepareStatement(senderCheckQuery)) {
                 senderCheckStatement.setString(1, senderCardNumber);
 
-                try (ResultSet senderResultSet = senderCheckStatement.executeQuery()) {
-                    if (senderResultSet.next()) {
-                        double senderBalance = senderResultSet.getDouble("amount");
-                        if (senderBalance >= transferAmount) {
-                            // Update sender's balance after transfer
-                            double newSenderBalance = senderBalance - transferAmount;
-                            String senderUpdateQuery = "UPDATE signup SET amount = ? WHERE card_number = ?";
-                            try (PreparedStatement senderUpdateStatement = conn.prepareStatement(senderUpdateQuery)) {
-                                senderUpdateStatement.setDouble(1, newSenderBalance);
-                                senderUpdateStatement.setString(2, senderCardNumber);
-                                senderUpdateStatement.executeUpdate();
+
+                String[] options = {"Local Bank", "Other Banks"};
+                int transferType = JOptionPane.showOptionDialog(
+                        null,
+                        "Select transfer type:",
+                        "Transfer Type",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]
+                );
+
+
+                int result;
+                if (transferType == 0) {
+                    try (ResultSet senderResultSet = senderCheckStatement.executeQuery()) {
+                        if (senderResultSet.next()) {
+                            double senderBalance = senderResultSet.getDouble("amount");
+                            if (senderBalance >= transferAmount) {
+                                // Update sender's balance after transfer
+                                double newSenderBalance = senderBalance - transferAmount;
+                                String senderUpdateQuery = "UPDATE signup SET amount = ? WHERE card_number = ?";
+                                try (PreparedStatement senderUpdateStatement = conn.prepareStatement(senderUpdateQuery)) {
+                                    senderUpdateStatement.setDouble(1, newSenderBalance);
+                                    senderUpdateStatement.setString(2, senderCardNumber);
+                                    senderUpdateStatement.executeUpdate();
+                                }
+
+                                // Update receiver's balance after transfer
+                                String receiverCheckQuery = "SELECT amount FROM signup WHERE accountnumber = ?";
+                                try (PreparedStatement receiverCheckStatement = conn.prepareStatement(receiverCheckQuery)) {
+                                    receiverCheckStatement.setString(1, receiverAccountNumber);
+
+                                    try (ResultSet receiverResultSet = receiverCheckStatement.executeQuery()) {
+                                        if (receiverResultSet.next()) {
+                                            double receiverBalance = receiverResultSet.getDouble("amount");
+                                            double newReceiverBalance = receiverBalance + transferAmount;
+                                            String receiverUpdateQuery = "UPDATE signup SET amount = ? WHERE accountnumber = ?";
+                                            try (PreparedStatement receiverUpdateStatement = conn.prepareStatement(receiverUpdateQuery)) {
+                                                receiverUpdateStatement.setDouble(1, newReceiverBalance);
+                                                receiverUpdateStatement.setString(2, receiverAccountNumber);
+                                                receiverUpdateStatement.executeUpdate();
+
+                                                // Insert transfer record
+                                                String insertTransferQuery = "INSERT INTO transfers (sender_card_number, receiver_account_number, transfer_amount) VALUES (?, ?, ?)";
+                                                try (PreparedStatement insertTransferStatement = conn.prepareStatement(insertTransferQuery)) {
+                                                    insertTransferStatement.setString(1, senderCardNumber);
+                                                    insertTransferStatement.setString(2, receiverAccountNumber);
+                                                    insertTransferStatement.setDouble(3, transferAmount);
+                                                    insertTransferStatement.executeUpdate();
+                                                }
+
+                                                return 1; // Successful transfer
+                                            }
+                                        } else {
+                                            return -3; // Receiver's account number not found
+                                        }
+                                    }
+                                }
+                            } else {
+                                return -1; // Insufficient balance
                             }
+                        } else {
+                            return -2; // Sender's card number not found
+                        }
+                    }
+                }
 
-                            // Update receiver's balance after transfer
-                            String receiverCheckQuery = "SELECT amount FROM signup WHERE accountnumber = ?";
-                            try (PreparedStatement receiverCheckStatement = conn.prepareStatement(receiverCheckQuery)) {
-                                receiverCheckStatement.setString(1, receiverAccountNumber);
 
-                                try (ResultSet receiverResultSet = receiverCheckStatement.executeQuery()) {
-                                    if (receiverResultSet.next()) {
-                                        double receiverBalance = receiverResultSet.getDouble("amount");
-                                        double newReceiverBalance = receiverBalance + transferAmount;
-                                        String receiverUpdateQuery = "UPDATE signup SET amount = ? WHERE accountnumber = ?";
-                                        try (PreparedStatement receiverUpdateStatement = conn.prepareStatement(receiverUpdateQuery)) {
-                                            receiverUpdateStatement.setDouble(1, newReceiverBalance);
-                                            receiverUpdateStatement.setString(2, receiverAccountNumber);
-                                            receiverUpdateStatement.executeUpdate();
+                else if (transferType == 1) {
+                    String bankName = JOptionPane.showInputDialog(null, "Enter the bank name:");
+                    if (bankName != null && !bankName.isEmpty()) {
+                        try (ResultSet senderResultSet = senderCheckStatement.executeQuery()) {
+                            if (senderResultSet.next()) {
+                                double senderBalance = senderResultSet.getDouble("amount");
+                                if (senderBalance >= transferAmount) {
+                                    // Update sender's balance after transfer
+                                    double newSenderBalance = senderBalance - transferAmount;
+                                    String senderUpdateQuery = "UPDATE signup SET amount = ? WHERE card_number = ?";
+                                    try (PreparedStatement senderUpdateStatement = conn.prepareStatement(senderUpdateQuery)) {
+                                        senderUpdateStatement.setDouble(1, newSenderBalance);
+                                        senderUpdateStatement.setString(2, senderCardNumber);
+                                        senderUpdateStatement.executeUpdate();
+                                    }
+
+                                    // Check if receiver's account exists in the Bank table
+//                                    String receiverCheckQuery = "SELECT * FROM Bank WHERE account_number = ?";
+                                    String receiverCheckQuery = "SELECT * FROM Bank WHERE account_number = ? AND bank_name = ?";
+                                    try (PreparedStatement receiverCheckStatement = conn.prepareStatement(receiverCheckQuery)) {
+                                        receiverCheckStatement.setString(1, receiverAccountNumber);
+                                        receiverCheckStatement.setString(2, bankName);
+
+
+                                        try (ResultSet receiverResultSet = receiverCheckStatement.executeQuery()) {
+                                            if (receiverResultSet.next()) {
+                                                // Receiver's account with the specific account number and bank name exists in the Bank table
+                                                double receiverBalance = receiverResultSet.getDouble("amount");
+                                                double newReceiverBalance = receiverBalance + transferAmount;
+
+                                                String receiverUpdateQuery = "UPDATE Bank SET amount = ? WHERE account_number = ? AND bank_name = ?";
+                                                try (PreparedStatement receiverUpdateStatement = conn.prepareStatement(receiverUpdateQuery)) {
+                                                    receiverUpdateStatement.setDouble(1, newReceiverBalance);
+                                                    receiverUpdateStatement.setString(2, receiverAccountNumber);
+                                                    receiverUpdateStatement.setString(3, bankName);
+                                                    receiverUpdateStatement.executeUpdate();
+                                                }
+                                            }
+                                            else {
+                                                // Receiver's account does not exist in the Bank table, insert new account
+                                                String insertReceiverQuery = "INSERT INTO Bank (bank_name, account_number, amount) VALUES (?, ?, ?)";
+                                                try (PreparedStatement insertReceiverStatement = conn.prepareStatement(insertReceiverQuery)) {
+                                                    insertReceiverStatement.setString(1, bankName);
+                                                    insertReceiverStatement.setString(2, receiverAccountNumber);
+                                                    insertReceiverStatement.setDouble(3, transferAmount);
+                                                    insertReceiverStatement.executeUpdate();
+                                                }
+                                            }
 
                                             // Insert transfer record
                                             String insertTransferQuery = "INSERT INTO transfers (sender_card_number, receiver_account_number, transfer_amount) VALUES (?, ?, ?)";
@@ -459,26 +552,33 @@ public class AtmHomePage extends JFrame {
                                                 insertTransferStatement.executeUpdate();
                                             }
 
-                                            return 1;
+                                            return 1; // Successful transfer
                                         }
-                                    } else {
-                                        return -3;
                                     }
+                                } else {
+                                    return -1; // Insufficient balance
                                 }
+                            } else {
+                                return -2; // Sender's card number not found
                             }
-                        } else {
-                            return -1;
                         }
                     } else {
-                        return -2;
+                        return -5; // Bank name not provided
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return -4; // An error occurred
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -4;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
+        return 0;
     }
+
+
 
 
 
@@ -493,21 +593,21 @@ public class AtmHomePage extends JFrame {
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        return resultSet.getDouble("amount");
+                        return resultSet.getDouble("amount"); // Return the amount if a row is returned
                     } else {
-                        return -1;
+                        return -1; // Indicate that the card number was not found
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return -2;
+            return -2; // Indicate an error occurred
         }
     }
 
     private ResultSet getAccountInfo(String cardNumber) {
         try {
-            Connection conn = sqlConnection.getConnection();
+            Connection conn = sqlConnection.getConnection(); // Get the database connection
 
             String query = "SELECT * FROM signup WHERE card_number = ?";
             PreparedStatement preparedStatement = conn.prepareStatement(query);
@@ -516,7 +616,7 @@ public class AtmHomePage extends JFrame {
             return preparedStatement.executeQuery();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return null; // An error occurred
         }
     }
 

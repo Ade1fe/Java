@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.text.NumberFormat;
 
 public class AtmHomePage extends JFrame {
     private JButton depositButton;
@@ -33,9 +31,8 @@ public class AtmHomePage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        namePanel = new JPanel(new GridLayout(0,1));
-        // Set the background color to light purple
-        nameLabel = new JLabel("       Welcome " + name);
+        namePanel = new JPanel(new GridBagLayout());
+        nameLabel = new JLabel("Welcome " + name, SwingConstants.CENTER);
 
         Color lightBlack = new Color(0, 0, 0);
         Color lightPurple = new Color(135, 206, 235);  // You can adjust these RGB values
@@ -197,7 +194,7 @@ public class AtmHomePage extends JFrame {
                             String lastName = resultSet.getString("lastname");
                             String username = resultSet.getString("username");
                             String pin = resultSet.getString("pin");
-                            String recoveryQuestion = resultSet.getString("recoveryquestion");
+//                            String recoveryQuestion = resultSet.getString("recoveryquestion");
                             String recoverAnswer = resultSet.getString("recoveryanswer");
                             String cardNumber = resultSet.getString("card_number");
                             double balance = resultSet.getDouble("amount");
@@ -208,7 +205,7 @@ public class AtmHomePage extends JFrame {
 
                                     "Username: " + username + "\n" +
                                     "Pin: " + pin + "\n" +
-                                    "Recovery Question: " + recoveryQuestion + "\n" +
+//                                    "Recovery Question: " + recoveryQuestion + "\n" +
                                     "Recover Answer: " + recoverAnswer + "\n" +
                                     "Card Number: " + cardNumber + "\n" +
                                     "Gender: "+ gender + "\n" +
@@ -230,10 +227,6 @@ public class AtmHomePage extends JFrame {
             }
         });
 
-//        mainPanel.add(namePanel);
-        // Create the mainPanel and set its background color
-//        JPanel mainPanel = new JPanel(new GridLayout(2, 3, 10, 10));
-        // Add buttons to the mainPanel
         mainPanel.add(depositButton);
         mainPanel.add(withdrawButton);
         mainPanel.add(transferButton);
@@ -357,64 +350,6 @@ public class AtmHomePage extends JFrame {
     }
 
 
-//    private int performTransfer(String senderCardNumber, String receiverCardNumber, double transferAmount) {
-//        try {
-//            Connection conn = sqlConnection.getConnection(); // Get the database connection
-//
-//            // Check if sender's card number exists and has sufficient balance
-//            String senderCheckQuery = "SELECT amount FROM signup WHERE card_number = ?";
-//            try (PreparedStatement senderCheckStatement = conn.prepareStatement(senderCheckQuery)) {
-//                senderCheckStatement.setString(1, senderCardNumber);
-//
-//                try (ResultSet senderResultSet = senderCheckStatement.executeQuery()) {
-//                    if (senderResultSet.next()) {
-//                        double senderBalance = senderResultSet.getDouble("amount");
-//                        if (senderBalance >= transferAmount) {
-//                            // Update sender's balance after transfer
-//                            double newSenderBalance = senderBalance - transferAmount;
-//                            String senderUpdateQuery = "UPDATE signup SET amount = ? WHERE card_number = ?";
-//                            try (PreparedStatement senderUpdateStatement = conn.prepareStatement(senderUpdateQuery)) {
-//                                senderUpdateStatement.setDouble(1, newSenderBalance);
-//                                senderUpdateStatement.setString(2, senderCardNumber);
-//                                senderUpdateStatement.executeUpdate();
-//                            }
-//
-//                            // Update receiver's balance after transfer
-//                            String receiverCheckQuery = "SELECT amount FROM signup WHERE accountnumber = ?";
-//                            try (PreparedStatement receiverCheckStatement = conn.prepareStatement(receiverCheckQuery)) {
-//                                receiverCheckStatement.setString(1, receiverCardNumber);
-//
-//                                try (ResultSet receiverResultSet = receiverCheckStatement.executeQuery()) {
-//                                    if (receiverResultSet.next()) {
-//                                        double receiverBalance = receiverResultSet.getDouble("amount");
-//                                        double newReceiverBalance = receiverBalance + transferAmount;
-//                                        String receiverUpdateQuery = "UPDATE signup SET amount = ? WHERE accountnumber = ?";
-//                                        try (PreparedStatement receiverUpdateStatement = conn.prepareStatement(receiverUpdateQuery)) {
-//                                            receiverUpdateStatement.setDouble(1, newReceiverBalance);
-//                                            receiverUpdateStatement.setString(2, receiverCardNumber);
-//                                            receiverUpdateStatement.executeUpdate();
-//                                            return 1; // Successful transfer
-//                                        }
-//                                    } else {
-//                                        return -3; // Receiver's card number not found
-//                                    }
-//                                }
-//                            }
-//                        } else {
-//                            return -1; // Insufficient balance
-//                        }
-//                    } else {
-//                        return -2; // Sender's card number not found
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return -4; // An error occurred
-//        }
-//    }
-
-
     private int performTransfer(String senderCardNumber, String receiverAccountNumber, double transferAmount) {
         try {
             Connection conn = sqlConnection.getConnection(); // Get the database connection
@@ -495,6 +430,16 @@ public class AtmHomePage extends JFrame {
 
 
                 else if (transferType == 1) {
+                    String createBankTableQuery = "CREATE TABLE IF NOT EXISTS Bank ( " +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "bank_name VARCHAR(255), " +
+                            "account_number VARCHAR(255), " +
+                            "amount DECIMAL(15, 2) " +
+                            ")";
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.executeUpdate(createBankTableQuery);
+                    }
+
                     String bankName = JOptionPane.showInputDialog(null, "Enter the bank name:");
                     if (bankName != null && !bankName.isEmpty()) {
                         try (ResultSet senderResultSet = senderCheckStatement.executeQuery()) {
@@ -544,6 +489,16 @@ public class AtmHomePage extends JFrame {
                                             }
 
                                             // Insert transfer record
+
+                                            String createTransfersTableQuery = "CREATE TABLE IF NOT EXISTS transfers ( " +
+                                                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                                                    "sender_card_number VARCHAR(255), " +
+                                                    "receiver_account_number VARCHAR(255), " +
+                                                    "transfer_amount DECIMAL(15, 2) " +
+                                                    ")";
+                                            try (Statement stmt = conn.createStatement()) {
+                                                stmt.executeUpdate(createTransfersTableQuery);
+                                            }
                                             String insertTransferQuery = "INSERT INTO transfers (sender_card_number, receiver_account_number, transfer_amount) VALUES (?, ?, ?)";
                                             try (PreparedStatement insertTransferStatement = conn.prepareStatement(insertTransferQuery)) {
                                                 insertTransferStatement.setString(1, senderCardNumber);
@@ -570,9 +525,7 @@ public class AtmHomePage extends JFrame {
                 e.printStackTrace();
                 return -4; // An error occurred
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         return 0;
@@ -580,7 +533,10 @@ public class AtmHomePage extends JFrame {
 
 
 
-
+    private String formatBalance(double balance) {
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        return numberFormat.format(balance);
+    }
 
     private double checkBalance(String cardNumber) {
         try {
@@ -593,9 +549,9 @@ public class AtmHomePage extends JFrame {
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        return resultSet.getDouble("amount"); // Return the amount if a row is returned
+                        return resultSet.getDouble("amount");
                     } else {
-                        return -1; // Indicate that the card number was not found
+                        return -1;
                     }
                 }
             }

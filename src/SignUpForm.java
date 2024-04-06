@@ -14,7 +14,6 @@ public class SignUpForm extends JFrame {
     private JTextField lastNameField;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField recoveryQuestionField;
     private JTextField recoveryAnswerField;
     private JTextField accountNumberField;
     private JTextField amountField;
@@ -51,8 +50,6 @@ public class SignUpForm extends JFrame {
         passwordField = new JPasswordField(20);
         addRow(mainPanel, "Pin:", passwordField);
 
-        recoveryQuestionField = new JTextField(30);
-        addRow(mainPanel, "Recovery Question:", recoveryQuestionField);
 
         recoveryAnswerField = new JTextField(30);
         addRow(mainPanel, "Recovery Answer:", recoveryAnswerField);
@@ -112,7 +109,7 @@ public class SignUpForm extends JFrame {
                 stmt.executeUpdate(useDatabaseQuery);
             }
 
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS signup (user_id INT PRIMARY KEY AUTO_INCREMENT,card_number VARCHAR(10) UNIQUE,firstname VARCHAR(50) NOT NULL,lastname VARCHAR(50) NOT NULL,username VARCHAR(50) NOT NULL UNIQUE,pin CHAR(4) NOT NULL CHECK (LENGTH(pin) = 4),recoveryquestion VARCHAR(100) NOT NULL,recoveryanswer VARCHAR(100) NOT NULL,accountnumber BIGINT(11) UNIQUE NOT NULL,amount DECIMAL(10, 2) DEFAULT 0.00,gender ENUM('Male', 'Female'));";
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS signup (user_id INT PRIMARY KEY AUTO_INCREMENT,card_number VARCHAR(10) UNIQUE,firstname VARCHAR(50) NOT NULL,lastname VARCHAR(50) NOT NULL,username VARCHAR(50) NOT NULL UNIQUE,pin CHAR(4) NOT NULL CHECK (LENGTH(pin) = 4),recoveryanswer VARCHAR(100) NOT NULL,accountnumber BIGINT(11) UNIQUE NOT NULL,amount DECIMAL(10, 2) DEFAULT 0.00,gender ENUM('Male', 'Female'));";
 
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(createTableQuery);
@@ -144,7 +141,6 @@ public class SignUpForm extends JFrame {
             String lastName = lastNameField.getText();
             String username = usernameField.getText();
             String pin = new String(passwordField.getPassword());
-            String recoveryQuestion = recoveryQuestionField.getText();
             String recoveryAnswer = recoveryAnswerField.getText();
             String accountNumber = accountNumberField.getText();
             double amount = Double.parseDouble(amountField.getText());
@@ -153,30 +149,23 @@ public class SignUpForm extends JFrame {
 
             String cardNumber = generateCardNumber();
 
-            String query = "INSERT INTO signup (firstname, lastname, username, pin, recoveryquestion, recoveryanswer, accountnumber, card_number, amount, gender)\n" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO signup (firstname, lastname, username, pin, recoveryanswer, accountnumber, card_number, amount, gender)\n" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
 
             try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
                 preparedStatement.setString(1, firstName);
                 preparedStatement.setString(2, lastName);
                 preparedStatement.setString(3, username);
                 preparedStatement.setString(4, pin);
-                preparedStatement.setString(5, recoveryQuestion);
-                preparedStatement.setString(6, recoveryAnswer);
-                preparedStatement.setString(7, accountNumber);
-                preparedStatement.setString(8, cardNumber);
-                preparedStatement.setDouble(9, amount);
-                preparedStatement.setString(10, gender);
+                preparedStatement.setString(5, recoveryAnswer);
+                preparedStatement.setString(6, accountNumber);
+                preparedStatement.setString(7, cardNumber);
+                preparedStatement.setDouble(8, amount);
+                preparedStatement.setString(9, gender);
+
 
                 preparedStatement.executeUpdate();
-//                if( !(firstName.equals("") && lastName.equals("") && username.equals("") && pin.equals("")
-//                && recoveryQuestion.equals("")   && accountNumber.equals("")   && conAmount.equals("")
-//                        && gender.isEmpty()
-//                ) ){
-//                    System.out.println(" sign up successful");
-//                }else {
-//                    System.out.println("Not Successful");
-//                }
 
                 JOptionPane.showMessageDialog(this, "Sign up successful!\nCard Number: " + cardNumber);
             } catch (SQLException ex) {

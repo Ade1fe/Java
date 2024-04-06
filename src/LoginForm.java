@@ -148,7 +148,7 @@ public class LoginForm extends JFrame {
         }
     }
 
-        private void forgotPassword() {
+    private void forgotPassword() {
         String cardNumber = cardNumberField.getText();
 
         // Perform your forgot password logic here
@@ -159,7 +159,7 @@ public class LoginForm extends JFrame {
 
     }
 
-        private boolean isValidLogin(String cardNumber, String password) {
+    private boolean isValidLogin(String cardNumber, String password) {
         try {
             Connection conn = sqlConnection.getConnection();
             String query = "SELECT * FROM signup WHERE card_number = ? AND pin = ?";
@@ -174,7 +174,7 @@ public class LoginForm extends JFrame {
         } catch (ClassNotFoundException | SQLException ex) {
             throw new RuntimeException(ex);
         }
-        }
+    }
 
     private void login() {
         String cardNumber = cardNumberField.getText();
